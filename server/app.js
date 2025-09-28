@@ -17,7 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // Static folders
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '..', 'public')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Multer configuration
@@ -29,9 +29,9 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// Home route
+// Home route - Fixed path for Jenkins
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.status(200).sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
 // Health check route
@@ -78,7 +78,7 @@ app.post('/submit', upload.single('scenarioImage'), (req, res) => {
   });
 });
 
-// View all scenarios
+// View all scenarios - Fixed to return JSON for tests
 app.get('/all-scenarios', (req, res) => {
   const scenarioSql = `
     SELECT id, title, description, author, tags, upvotes, downvotes, imageUrl, status, createdAt
@@ -90,27 +90,29 @@ app.get('/all-scenarios', (req, res) => {
   db.all(scenarioSql, [], (err, rows) => {
     if (err) {
       console.error('Scenario DB error:', err.message);
-      return res.status(500).send('Error fetching scenarios');
+      return res.status(500).json({ error: 'Error fetching scenarios' });
     }
 
     db.all(tagsSql, [], (tagErr, tagRows) => {
       if (tagErr) {
         console.error('Tags DB error:', tagErr.message);
-        return res.status(500).send('Error fetching tag colors');
+        return res.status(500).json({ error: 'Error fetching tag colors' });
       }
 
       const tagColorMap = {};
-      tagRows.forEach(tag => {
-        tagColorMap[tag.name] = tag.color;
-      });
+      if (Array.isArray(tagRows)) {
+        tagRows.forEach(tag => {
+          tagColorMap[tag.name] = tag.color;
+        });
+      }
 
-      const scenarios = rows.map(row => ({
+      const scenarios = Array.isArray(rows) ? rows.map(row => ({
         ...row,
         tags: row.tags ? JSON.parse(row.tags) : [],
         imageUrl: row.imageUrl ? `/uploads/${row.imageUrl}` : null
-      }));
+      })) : [];
 
-      res.render('allScenarios', { scenarios, tagColorMap });
+      return res.status(200).json({ scenarios, tagColorMap });
     });
   });
 });
@@ -169,9 +171,11 @@ app.get('/discussion/:id', (req, res) => {
         }
 
         const tagColorMap = {};
-        tagRows.forEach(tag => {
-          tagColorMap[tag.name] = tag.color;
-        });
+        if (Array.isArray(tagRows)) {
+          tagRows.forEach(tag => {
+            tagColorMap[tag.name] = tag.color;
+          });
+        }
 
         scenario.imageUrl = scenario.imageUrl ? `/uploads/${scenario.imageUrl}` : null;
         scenario.tags = tags;
@@ -202,10 +206,11 @@ app.post('/discussion/:id/comment', (req, res) => {
   });
 });
 
-// Start server
+// Start server only if not in test environment
 if (process.env.NODE_ENV !== 'test') {
   app.listen(port, () => {
     console.log(`Web server running at: http://localhost:${port}`);
+    console.log(`Type Ctrl+C to shut down the web server`);
   });
 }
 
