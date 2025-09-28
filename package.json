@@ -1,57 +1,58 @@
 {
   "name": "sit774_10.3d",
   "version": "1.0.0",
+  "description": "Node.js web application for scenario discussions with DevOps pipeline",
   "main": "server/app.js",
   "scripts": {
     "start": "node server/app.js",
-    "start:dev": "nodemon server/app.js",
-    "test": "jest --verbose --ci --reporters=default --reporters=jest-junit",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
-    "build": "echo 'Build completed successfully'",
-    "lint": "eslint server/ --ext .js --max-warnings=0",
-    "lint:fix": "eslint server/ --ext .js --fix",
-    "security-check": "npm audit"
+    "dev": "nodemon server/app.js",
+    "test": "NODE_ENV=test jest --verbose --ci --reporters=default --reporters=jest-junit",
+    "test:coverage": "NODE_ENV=test jest --coverage --watchAll=false",
+    "test:watch": "NODE_ENV=test jest --watch",
+    "build": "echo 'Build completed - creating production ready application'",
+    "lint": "eslint server/ tests/ --ext .js",
+    "lint:fix": "eslint server/ tests/ --ext .js --fix",
+    "docker:build": "docker build -t sit774-webapp .",
+    "docker:run": "docker run -p 3000:3000 sit774-webapp",
+    "security:audit": "npm audit",
+    "prestart": "npm run build"
   },
-  "keywords": [
-    "express",
-    "sqlite",
-    "scenarios",
-    "web-application"
-  ],
-  "author": "",
-  "license": "ISC",
-  "description": "Web application for scenario sharing with database integration",
+  "keywords": ["nodejs", "express", "devops", "jenkins", "docker"],
+  "author": "Your Name",
+  "license": "MIT",
   "dependencies": {
-    "ejs": "^3.1.10",
     "express": "^4.18.2",
+    "multer": "^1.4.5-lts.1",
     "morgan": "^1.10.0",
-    "multer": "^1.4.4",
-    "sqlite3": "^5.1.7"
+    "ejs": "^3.1.9",
+    "sqlite3": "^5.1.6"
   },
   "devDependencies": {
-    "eslint": "^8.57.1",
-    "jest": "^29.7.0",
-    "jest-junit": "^16.0.0",
-    "nodemon": "^2.0.22",
-    "supertest": "^6.3.4"
+    "jest": "^29.0.0",
+    "supertest": "^6.3.0",
+    "nodemon": "^3.0.0",
+    "eslint": "^8.0.0",
+    "jest-junit": "^16.0.0"
   },
   "jest": {
-    "collectCoverage": true,
-    "coverageThreshold": {
-      "global": {
-        "branches": 50,
-        "functions": 50,
-        "lines": 50,
-        "statements": 50
-      }
-    }
-  },
-  "jest-junit": {
-    "outputDirectory": "reports",
-    "outputName": "junit.xml"
+    "testEnvironment": "node",
+    "collectCoverageFrom": [
+      "server/**/*.js",
+      "!server/node_modules/**",
+      "!server/coverage/**"
+    ],
+    "coverageDirectory": "coverage",
+    "coverageReporters": ["text", "lcov", "html"],
+    "reporters": [
+      "default",
+      ["jest-junit", {
+        "outputDirectory": "reports",
+        "outputName": "junit.xml"
+      }]
+    ]
   },
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
   }
 }

@@ -178,11 +178,10 @@ Bisheshwar Das - Deakin University SIT774 Student
 
 ## Pipeline Status
 
-[![Build Status](https://jenkins.example.com/buildStatus/icon?job=SIT774-Pipeline)](https://jenkins.example.com/job/SIT774-Pipeline/)
+
 
 ## Demo Video
 
-[Link to demo video will be added here]
 
 ## Additional Notes
 
