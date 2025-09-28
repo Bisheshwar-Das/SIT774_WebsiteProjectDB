@@ -4,6 +4,7 @@ pipeline {
     environment {
         APP_NAME = 'sit774-website'
         DOCKER_IMAGE = "${APP_NAME}:${BUILD_NUMBER}"
+        SONAR_LOGIN = credentials('sonar-token') // Your stored SonarCloud token in Jenkins
     }
 
     stages {
@@ -37,9 +38,12 @@ pipeline {
 
         stage('Code Quality') {
             steps {
-                echo 'Running SonarQube analysis...'
-                withSonarQubeEnv('MySonarQube') {
-                    sh 'sonar-scanner'
+                echo 'Running SonarCloud analysis...'
+                withSonarQubeEnv('SonarCloud') { // This name must match Jenkins SonarQube config
+                    sh """
+                        sonar-scanner \
+                            -Dsonar.login=${SONAR_LOGIN}
+                    """
                 }
             }
         }
