@@ -10,7 +10,8 @@ pipeline {
         stage('Checkout') {
             steps {
                 echo 'Checking out source code...'
-                checkout scm
+                git branch: 'main',
+                    url: 'https://github.com/Bisheshwar-Das/SIT774_WebsiteProjectDB.git'
             }
         }
         
