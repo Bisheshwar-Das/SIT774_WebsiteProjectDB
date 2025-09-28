@@ -25,24 +25,23 @@ pipeline {
             steps {
                 echo 'Installing dependencies and building application...'
                 sh '''
+                    echo "Installing Node.js dependencies..."
                     npm ci
 
+                    echo "Saving build metadata..."
                     echo "Build Number: ${BUILD_NUMBER}" > build-info.txt
                     echo "Build Date: $(date)" >> build-info.txt
                     echo "Git Commit: ${GIT_COMMIT}" >> build-info.txt
 
+                    echo "Running build..."
                     npm run build
 
                     mkdir -p uploads
                 '''
             }
             post {
-                success {
-                    echo 'Build stage completed successfully!'
-                }
-                failure {
-                    echo 'Build stage failed!'
-                }
+                success { echo '✅ Build stage completed successfully!' }
+                failure { echo '❌ Build stage failed!' }
             }
         }
 
@@ -56,14 +55,10 @@ pipeline {
             }
             post {
                 always {
-                    junit 'coverage/lcov-report/*.xml' // test results
+                    junit 'coverage/lcov-report/*.xml' // publish test results
                 }
-                success {
-                    echo 'All tests passed!'
-                }
-                failure {
-                    echo 'Tests failed!'
-                }
+                success { echo '✅ All tests passed!' }
+                failure { echo '❌ Tests failed!' }
             }
         }
 
@@ -72,7 +67,7 @@ pipeline {
                 echo 'Running code quality analysis...'
                 sh '''
                     npm run lint -- --format json --output-file eslint-report.json || true
-                    echo "ESLint analysis completed"
+                    echo "ESLint analysis completed."
                 '''
             }
             post {
@@ -87,7 +82,7 @@ pipeline {
                 echo 'Running security analysis...'
                 sh '''
                     npm audit --audit-level=moderate --json > security-report.json || true
-                    echo "Security scan completed"
+                    echo "Security scan completed."
                 '''
             }
             post {
@@ -102,14 +97,14 @@ pipeline {
                 echo 'Building Docker image...'
                 script {
                     def dockerImage = docker.build("${DOCKER_IMAGE}")
-                    echo "Docker image built: ${DOCKER_IMAGE}"
+                    echo "✅ Docker image built: ${DOCKER_IMAGE}"
                 }
             }
         }
 
         stage('Deploy to Staging') {
             steps {
-                echo 'Deploying to staging environment...'
+                echo 'Deploying to staging...'
                 sh '''
                     docker stop sit774-staging || true
                     docker rm sit774-staging || true
@@ -125,11 +120,9 @@ pipeline {
                 '''
             }
             post {
-                success {
-                    echo 'Deployment to staging successful!'
-                }
+                success { echo '✅ Deployment to staging successful!' }
                 failure {
-                    echo 'Staging deployment failed!'
+                    echo '❌ Staging deployment failed!'
                     sh 'docker logs sit774-staging || true'
                 }
             }
@@ -142,17 +135,15 @@ pipeline {
                     curl -f http://localhost:3001/ || exit 1
                     curl -f http://localhost:3001/health || exit 1
                     curl -f http://localhost:3001/all-scenarios || exit 1
-                    echo "Integration tests passed!"
+                    echo "✅ Integration tests passed!"
                 '''
             }
         }
 
         stage('Release to Production') {
-            when {
-                branch 'main'
-            }
+            when { branch 'main' }
             steps {
-                echo 'Deploying to production environment...'
+                echo 'Deploying to production...'
                 sh '''
                     docker stop sit774-production || true
                     docker rm sit774-production || true
@@ -166,16 +157,13 @@ pipeline {
 
                     sleep 15
                     curl -f http://localhost:3000/health || exit 1
-
-                    echo "Production deployment successful!"
+                    echo "✅ Production deployment successful!"
                 '''
             }
             post {
-                success {
-                    echo 'Production deployment completed successfully!'
-                }
+                success { echo '✅ Production deployment completed successfully!' }
                 failure {
-                    echo 'Production deployment failed!'
+                    echo '❌ Production deployment failed!'
                     sh 'docker logs sit774-production || true'
                 }
             }
@@ -183,7 +171,7 @@ pipeline {
 
         stage('Monitoring Setup') {
             steps {
-                echo 'Setting up monitoring and alerting...'
+                echo 'Setting up monitoring...'
                 sh '''
                     cat > monitor.sh << 'EOF'
 #!/bin/bash
@@ -209,11 +197,9 @@ EOF
             echo 'Pipeline completed!'
             cleanWs()
         }
-        success {
-            echo 'Pipeline executed successfully!'
-        }
+        success { echo '🎉 Pipeline executed successfully!' }
         failure {
-            echo 'Pipeline failed!'
+            echo '❌ Pipeline failed!'
             sh 'docker logs sit774-staging || true'
             sh 'docker logs sit774-production || true'
         }
