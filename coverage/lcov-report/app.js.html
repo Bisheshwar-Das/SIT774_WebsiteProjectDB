@@ -572,10 +572,10 @@ app.post('/submit', upload.single('scenarioImage'), <span class="fstat-no" title
   const tags = <span class="cstat-no" title="statement not covered" >Array.isArray(tagsArray) ? tagsArray : [tagsArray];</span>
   const image = <span class="cstat-no" title="statement not covered" >req.file ? req.file.filename : null;</span>
 &nbsp;
-  const author = <span class="cstat-no" title="statement not covered" >"Anonymous";</span>
+  const author = <span class="cstat-no" title="statement not covered" >'Anonymous';</span>
   const upvotes = <span class="cstat-no" title="statement not covered" >0;</span>
   const downvotes = <span class="cstat-no" title="statement not covered" >0;</span>
-  const status = <span class="cstat-no" title="statement not covered" >"active";</span>
+  const status = <span class="cstat-no" title="statement not covered" >'active';</span>
   const createdAt = <span class="cstat-no" title="statement not covered" >new Date().toISOString();</span>
 &nbsp;
   const sql = <span class="cstat-no" title="statement not covered" >`</span>
@@ -606,7 +606,7 @@ app.get('/all-scenarios', (req, res) =&gt; {
     FROM scenario
     ORDER BY createdAt DESC
   `;
-  const tagsSql = `SELECT name, color FROM tags`;
+  const tagsSql = 'SELECT name, color FROM tags';
 &nbsp;
   db.all(scenarioSql, [], (err, rows) =&gt; {
     if (err) {
@@ -662,7 +662,7 @@ app.post('/contact', <span class="fstat-no" title="function not covered" >(r</sp
 app.get('/discussion/:id', <span class="fstat-no" title="function not covered" >(r</span>eq, res) =&gt; {
   const scenarioId = <span class="cstat-no" title="statement not covered" >req.params.id;</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  db.get(`SELECT * FROM scenario WHERE id = ?`, [scenarioId], <span class="fstat-no" title="function not covered" >(e</span>rr, scenario) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >  db.get('SELECT * FROM scenario WHERE id = ?', [scenarioId], <span class="fstat-no" title="function not covered" >(e</span>rr, scenario) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    if (err) {</span>
 <span class="cstat-no" title="statement not covered" >      console.error('Error fetching scenario:', err.message);</span>
 <span class="cstat-no" title="statement not covered" >      return res.status(500).send('Server error');</span>
@@ -679,13 +679,13 @@ app.get('/discussion/:id', <span class="fstat-no" title="function not covered" >
 <span class="cstat-no" title="statement not covered" >      console.error('Error parsing tags JSON:', parseErr.message);</span>
     }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    db.all(`SELECT * FROM comment WHERE scenario_id = ? ORDER BY timestamp DESC`, [scenarioId], <span class="fstat-no" title="function not covered" >(c</span>ommentErr, comments) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    db.all('SELECT * FROM comment WHERE scenario_id = ? ORDER BY timestamp DESC', [scenarioId], <span class="fstat-no" title="function not covered" >(c</span>ommentErr, comments) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >      if (commentErr) {</span>
 <span class="cstat-no" title="statement not covered" >        console.error('Error fetching comments:', commentErr.message);</span>
 <span class="cstat-no" title="statement not covered" >        return res.status(500).send('Server error');</span>
       }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >      db.all(`SELECT name, color FROM tags`, <span class="fstat-no" title="function not covered" >(t</span>agErr, tagRows) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >      db.all('SELECT name, color FROM tags', <span class="fstat-no" title="function not covered" >(t</span>agErr, tagRows) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >        if (tagErr) {</span>
 <span class="cstat-no" title="statement not covered" >          console.error('Error fetching tags:', tagErr.message);</span>
 <span class="cstat-no" title="statement not covered" >          return res.status(500).send('Server error');</span>
@@ -712,7 +712,7 @@ app.get('/discussion/:id', <span class="fstat-no" title="function not covered" >
 app.post('/discussion/:id/comment', <span class="fstat-no" title="function not covered" >(r</span>eq, res) =&gt; {
   const { comment } = <span class="cstat-no" title="statement not covered" >req.body;</span>
   const scenarioId = <span class="cstat-no" title="statement not covered" >req.params.id;</span>
-  const author = <span class="cstat-no" title="statement not covered" >"Anonymous";</span>
+  const author = <span class="cstat-no" title="statement not covered" >'Anonymous';</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >  db.run(`</span>
     INSERT INTO comment (scenario_id, author, comment, timestamp)
@@ -734,7 +734,7 @@ app.post('/discussion/:id/comment', <span class="fstat-no" title="function not c
 <span class="missing-if-branch" title="if path not taken" >I</span>if (process.env.NODE_ENV !== 'test') {
 <span class="cstat-no" title="statement not covered" >  app.listen(port, <span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    console.log(`Web server running at: http://localhost:${port}`);</span>
-<span class="cstat-no" title="statement not covered" >    console.log(`Type Ctrl+C to shut down the web server`);</span>
+<span class="cstat-no" title="statement not covered" >    console.log('Type Ctrl+C to shut down the web server');</span>
   });
 }
 &nbsp;
@@ -745,7 +745,7 @@ module.exports = app;</pre></td></tr></table></pre>
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-09-28T04:34:56.128Z
+                at 2025-09-28T04:55:48.185Z
             </div>
         <script src="prettify.js"></script>
         <script>

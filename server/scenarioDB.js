@@ -31,7 +31,7 @@ db.serialize(() => {
       FOREIGN KEY(scenario_id) REFERENCES scenario(id)
     );
   `);
-  
+
   db.run(`
     CREATE TABLE IF NOT EXISTS contact (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -49,8 +49,8 @@ db.serialize(() => {
       color TEXT NOT NULL
     );
   `);
-  
-  
+
+
 });
-    
+
 module.exports = db;

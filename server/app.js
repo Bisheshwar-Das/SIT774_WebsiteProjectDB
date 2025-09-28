@@ -57,10 +57,10 @@ app.post('/submit', upload.single('scenarioImage'), (req, res) => {
   const tags = Array.isArray(tagsArray) ? tagsArray : [tagsArray];
   const image = req.file ? req.file.filename : null;
 
-  const author = "Anonymous";
+  const author = 'Anonymous';
   const upvotes = 0;
   const downvotes = 0;
-  const status = "active";
+  const status = 'active';
   const createdAt = new Date().toISOString();
 
   const sql = `
@@ -91,7 +91,7 @@ app.get('/all-scenarios', (req, res) => {
     FROM scenario
     ORDER BY createdAt DESC
   `;
-  const tagsSql = `SELECT name, color FROM tags`;
+  const tagsSql = 'SELECT name, color FROM tags';
 
   db.all(scenarioSql, [], (err, rows) => {
     if (err) {
@@ -147,7 +147,7 @@ app.post('/contact', (req, res) => {
 app.get('/discussion/:id', (req, res) => {
   const scenarioId = req.params.id;
 
-  db.get(`SELECT * FROM scenario WHERE id = ?`, [scenarioId], (err, scenario) => {
+  db.get('SELECT * FROM scenario WHERE id = ?', [scenarioId], (err, scenario) => {
     if (err) {
       console.error('Error fetching scenario:', err.message);
       return res.status(500).send('Server error');
@@ -164,13 +164,13 @@ app.get('/discussion/:id', (req, res) => {
       console.error('Error parsing tags JSON:', parseErr.message);
     }
 
-    db.all(`SELECT * FROM comment WHERE scenario_id = ? ORDER BY timestamp DESC`, [scenarioId], (commentErr, comments) => {
+    db.all('SELECT * FROM comment WHERE scenario_id = ? ORDER BY timestamp DESC', [scenarioId], (commentErr, comments) => {
       if (commentErr) {
         console.error('Error fetching comments:', commentErr.message);
         return res.status(500).send('Server error');
       }
 
-      db.all(`SELECT name, color FROM tags`, (tagErr, tagRows) => {
+      db.all('SELECT name, color FROM tags', (tagErr, tagRows) => {
         if (tagErr) {
           console.error('Error fetching tags:', tagErr.message);
           return res.status(500).send('Server error');
@@ -197,7 +197,7 @@ app.get('/discussion/:id', (req, res) => {
 app.post('/discussion/:id/comment', (req, res) => {
   const { comment } = req.body;
   const scenarioId = req.params.id;
-  const author = "Anonymous";
+  const author = 'Anonymous';
 
   db.run(`
     INSERT INTO comment (scenario_id, author, comment, timestamp)
@@ -219,7 +219,7 @@ app.post('/discussion/:id/comment', (req, res) => {
 if (process.env.NODE_ENV !== 'test') {
   app.listen(port, () => {
     console.log(`Web server running at: http://localhost:${port}`);
-    console.log(`Type Ctrl+C to shut down the web server`);
+    console.log('Type Ctrl+C to shut down the web server');
   });
 }
 
