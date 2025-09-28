@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server/app.js",
     "dev": "nodemon server/app.js",
-    "test": "NODE_ENV=test jest --verbose --ci --reporters=default --reporters=jest-junit",
+    "test": "jest --coverage --verbose --ci --reporters=default --reporters=jest-junit",
     "test:coverage": "NODE_ENV=test jest --coverage --watchAll=false",
     "test:watch": "NODE_ENV=test jest --watch",
     "build": "echo 'Build completed - creating production ready application'",
