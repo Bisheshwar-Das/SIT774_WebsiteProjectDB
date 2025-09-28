@@ -26,6 +26,16 @@ pipeline {
             }
         }
 
+        stage('DB Seed') {
+            steps {
+                echo 'Seeding the database...'
+                sh '''
+                    node server/seedScenario.js
+                    echo "Database seeding completed"
+                '''
+            }
+        }
+
         stage('Test') {
             steps {
                 echo 'Running tests...'
@@ -69,7 +79,7 @@ pipeline {
                 sh '''
                     docker stop sit774-staging || true
                     docker rm sit774-staging || true
-                    docker run -d -p 3001:3000 --name sit774-staging ''' + "${DOCKER_IMAGE}" + '''
+                    docker run -d -p 3001:3000 --name sit774-staging ${DOCKER_IMAGE}
                     sleep 10
                     echo "Staging deployment completed"
                 '''
@@ -85,7 +95,7 @@ pipeline {
                 sh '''
                     docker stop sit774-production || true
                     docker rm sit774-production || true
-                    docker run -d -p 3000:3000 --name sit774-production ''' + "${DOCKER_IMAGE}" + '''
+                    docker run -d -p 3000:3000 --name sit774-production ${DOCKER_IMAGE}
                     sleep 15
                     echo "Production deployment completed"
                 '''
@@ -96,7 +106,6 @@ pipeline {
             steps {
                 echo 'Setting up monitoring...'
                 sh '''
-                    # Create simple monitoring script
                     cat > monitor.sh << 'EOF'
 #!/bin/bash
 if curl -f http://localhost:3000/health > /dev/null 2>&1; then
