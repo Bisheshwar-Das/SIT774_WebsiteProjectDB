@@ -10,8 +10,10 @@ pipeline {
         stage('Checkout') {
             steps {
                 echo 'Checking out source code...'
+                deleteDir()
                 git branch: 'main',
-                    url: 'https://github.com/Bisheshwar-Das/SIT774_WebsiteProjectDB.git'
+                    url: 'https://github.com/Bisheshwar-Das/SIT774_WebsiteProjectDB.git',
+                    credentialsId: '8972af68-adf2-49e6-8431-8280277d87a8'
             }
         }
         
@@ -22,7 +24,6 @@ pipeline {
                     npm --version
                     node --version
                     npm ci
-                    echo "Build completed successfully"
                 '''
             }
         }
@@ -34,46 +35,10 @@ pipeline {
             }
         }
         
-        stage('Code Quality') {
-            steps {
-                echo 'Running ESLint...'
-                sh 'npm run lint || true'
-            }
-        }
-        
-        stage('Security Scan') {
-            steps {
-                echo 'Running security scan...'
-                sh 'npm audit --audit-level=moderate || true'
-            }
-        }
-        
         stage('Docker Build') {
             steps {
                 echo 'Building Docker image...'
-                sh '''
-                    docker --version
-                    docker build -t ${DOCKER_IMAGE} .
-                    echo "Docker image built: ${DOCKER_IMAGE}"
-                '''
-            }
-        }
-        
-        stage('Deploy to Staging') {
-            steps {
-                echo 'Deploying to staging...'
-                sh '''
-                    docker stop sit774-staging || true
-                    docker rm sit774-staging || true
-                    
-                    docker run -d \
-                        --name sit774-staging \
-                        -p 3001:3000 \
-                        ${DOCKER_IMAGE}
-                    
-                    sleep 10
-                    echo "Staging deployment completed"
-                '''
+                sh 'docker build -t ${DOCKER_IMAGE} .'
             }
         }
     }
@@ -82,11 +47,7 @@ pipeline {
         always {
             echo 'Pipeline completed!'
         }
-        success { 
-            echo 'Pipeline executed successfully!' 
-        }
-        failure {
-            echo 'Pipeline failed!'
-        }
+        success { echo 'Pipeline executed successfully!' }
+        failure { echo 'Pipeline failed!' }
     }
 }
