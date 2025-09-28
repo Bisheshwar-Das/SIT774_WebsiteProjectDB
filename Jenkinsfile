@@ -40,15 +40,16 @@ pipeline {
         stage('Code Quality') {
             steps {
                 echo 'Running SonarCloud analysis...'
-                withSonarQubeEnv('SonarCloud') { 
+                withSonarQubeEnv('SonarCloud') {
                     sh """
                         ./node_modules/.bin/sonar-scanner \
-                            -Dsonar.login=${SONAR_LOGIN} \
-                            -Dsonar.nodejs.executable=$(which node)
+                            -Dsonar.login=\${SONAR_LOGIN} \
+                            -Dsonar.nodejs.executable=\$(which node)
                     """
                 }
             }
         }
+
 
 
         stage('Security') {
