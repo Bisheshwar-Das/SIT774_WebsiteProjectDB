@@ -4,6 +4,8 @@ pipeline {
     environment {
         APP_NAME = 'sit774-website'
         DOCKER_IMAGE = "${APP_NAME}:${BUILD_NUMBER}"
+        SONAR_HOST_URL = 'http://localhost:9000'
+        SONAR_LOGIN = credentials('sonar-token')
     }
     
     stages {
@@ -34,11 +36,62 @@ pipeline {
                 sh 'npm test'
             }
         }
-        
+
+        stage('Code Quality') {
+            steps {
+                echo 'Running SonarQube analysis...'
+                sh """
+                    sonar-scanner \
+                        -Dsonar.projectKey=${APP_NAME} \
+                        -Dsonar.sources=. \
+                        -Dsonar.host.url=${SONAR_HOST_URL} \
+                        -Dsonar.login=${SONAR_LOGIN}
+                """
+            }
+        }
+
+        stage('Security') {
+            steps {
+                echo 'Running security scan...'
+                sh '''
+                    npm audit --audit-level=moderate
+                    trivy fs --exit-code 1 --severity HIGH,CRITICAL .
+                '''
+            }
+        }
+
         stage('Docker Build') {
             steps {
                 echo 'Building Docker image...'
                 sh 'docker build -t ${DOCKER_IMAGE} .'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo 'Deploying to staging environment...'
+                sh """
+                    docker stop ${APP_NAME} || true
+                    docker rm ${APP_NAME} || true
+                    docker run -d -p 3000:3000 --name ${APP_NAME} ${DOCKER_IMAGE}
+                """
+            }
+        }
+
+        stage('Release') {
+            steps {
+                echo 'Tagging and pushing Docker image...'
+                sh """
+                    docker tag ${DOCKER_IMAGE} ${APP_NAME}:latest
+                    docker push ${APP_NAME}:latest
+                """
+            }
+        }
+
+        stage('Monitoring') {
+            steps {
+                echo 'Monitoring application health...'
+                sh 'curl -f http://localhost:3000/health || echo "Health check failed"'
             }
         }
     }
@@ -47,7 +100,11 @@ pipeline {
         always {
             echo 'Pipeline completed!'
         }
-        success { echo 'Pipeline executed successfully!' }
-        failure { echo 'Pipeline failed!' }
+        success {
+            echo 'Pipeline executed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed!'
+        }
     }
 }
