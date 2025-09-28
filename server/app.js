@@ -36,7 +36,7 @@ const upload = multer({ storage });
 // ========================
 
 // Home route
-app.get('/', (req, res) => {
+app.get('*', (req, res) => {
   res.status(200).sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
