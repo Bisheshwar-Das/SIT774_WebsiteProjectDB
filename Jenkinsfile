@@ -1,13 +1,11 @@
 pipeline {
     agent any
-    
+
     environment {
         APP_NAME = 'sit774-website'
         DOCKER_IMAGE = "${APP_NAME}:${BUILD_NUMBER}"
-        SONAR_HOST_URL = 'http://localhost:9000'
-        SONAR_LOGIN = credentials('sonar-token')
     }
-    
+
     stages {
         stage('Checkout') {
             steps {
@@ -18,7 +16,7 @@ pipeline {
                     credentialsId: '8972af68-adf2-49e6-8431-8280277d87a8'
             }
         }
-        
+
         stage('Build') {
             steps {
                 echo 'Installing dependencies...'
@@ -29,7 +27,7 @@ pipeline {
                 '''
             }
         }
-        
+
         stage('Test') {
             steps {
                 echo 'Running tests...'
@@ -40,13 +38,9 @@ pipeline {
         stage('Code Quality') {
             steps {
                 echo 'Running SonarQube analysis...'
-                sh """
-                    sonar-scanner \
-                        -Dsonar.projectKey=${APP_NAME} \
-                        -Dsonar.sources=. \
-                        -Dsonar.host.url=${SONAR_HOST_URL} \
-                        -Dsonar.login=${SONAR_LOGIN}
-                """
+                withSonarQubeEnv('MySonarQube') {
+                    sh 'sonar-scanner'
+                }
             }
         }
 
@@ -63,7 +57,7 @@ pipeline {
         stage('Docker Build') {
             steps {
                 echo 'Building Docker image...'
-                sh 'docker build -t ${DOCKER_IMAGE} .'
+                sh "docker build -t ${DOCKER_IMAGE} ."
             }
         }
 
@@ -95,7 +89,7 @@ pipeline {
             }
         }
     }
-    
+
     post {
         always {
             echo 'Pipeline completed!'
